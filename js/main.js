@@ -55,7 +55,7 @@ var zoneData = [{
             "6_Brian_Introduces_Himself.mp3",
             "7_Brian_I'm_An_Old_Man.mp3"
         ]
-        
+
     }, {
         name: 'zone4',
         lat1: 51.5010,
@@ -73,24 +73,25 @@ var zoneData = [{
     }
 ]
 
-var walkAudio = ["1_Testing.mp3", 
-                 "2_EnteringMoL.mp3"]
+var walkAudio = ["1_Testing.mp3",
+    "2_EnteringMoL.mp3"
+]
 
 
 // Declare variables
-var locationData;   // Coordinates, speed, etc
-var currentZone;    // What zone the user is in
-var walking = false;        // Whether the user is walking or not
-var currentStatus;  // Used to detect whether there has been a change between walking and standing still
+var locationData; // Coordinates, speed, etc
+var currentZone; // What zone the user is in
+var walking = false; // Whether the user is walking or not
+var currentStatus; // Used to detect whether there has been a change between walking and standing still
 var inParliamentSquare; // Whether the user is in Parliament Square
 
-var latMin = 51.5000;    // Minimum latitude value
-var latMax = 51.5020;    // Maximum latitude value
-var longMin = -0.1276;   // Minimum longitude value  
-var longMax = -0.1261;   // Maximum longitude value
+var latMin = 51.5000; // Minimum latitude value
+var latMax = 51.5020; // Maximum latitude value
+var longMin = -0.1276; // Minimum longitude value  
+var longMax = -0.1261; // Maximum longitude value
 
-var zoneAudioPlayer;    // When still, plays zone audio
-var walkAudioPlayer;    // When walking, plays transition audio
+var zoneAudioPlayer; // When still, plays zone audio
+var walkAudioPlayer; // When walking, plays transition audio
 
 
 // Initialising 
@@ -117,25 +118,6 @@ function getCoords() {
 
 }
 
-// Check whether we are in Parliament Square
-function checkParliamentSquare() {
-
-    if ((locationData.latitude <= latMax || locationData.latitude >= latMin) && 
-        (locationData.longitude <= longMax || locationData.longitude >= longMin)) {
-
-            inParliamentSquare = true;
-            console.log('You\'re in Parliament Square!');
-            p.innerHTML = "You're in Parliament Square!";
-
-    } else {
-
-        inParliamentSquare = false;
-        console.log('You\'re not in Parliament Square.');
-        p.innerHTML = "Please make your way toParliament Square!";
-    
-    }
-
-}
 
 // Set coordinates so we can see them
 function setCoords(e) {
@@ -143,14 +125,11 @@ function setCoords(e) {
     console.log(e);
     locationData = e.coords;
 
-     c.innerHTML = "Latitude: " + locationData.latitude +
-                "<br>Longitude: " + locationData.longitude +
-                "<br>Accuracy: " + locationData.accuracy +
-                "<br>Speed: " + locationData.speed +
-                "<br>Heading: " + locationData.heading;
-
-    // Check whether we are in a zone
-    checkZone();
+    c.innerHTML = "Latitude: " + locationData.latitude +
+        "<br>Longitude: " + locationData.longitude +
+        "<br>Accuracy: " + locationData.accuracy +
+        "<br>Speed: " + locationData.speed +
+        "<br>Heading: " + locationData.heading;
 }
 
 
@@ -160,83 +139,66 @@ function error() {
 }
 
 
-// If we are in Parliament Square, then begin:
-if (inParliamentSquare){
+// Check whether we are in Parliament Square
+function checkParliamentSquare() {
 
+    if ((locationData.latitude <= latMax || locationData.latitude >= latMin) &&
+        (locationData.longitude <= longMax || locationData.longitude >= longMin)) {
 
-    function checkSpeed() {
+        inParliamentSquare = true;
+        console.log('You\'re in Parliament Square!');
+        p.innerHTML = "You're in Parliament Square!";
+        // Check whether we are in a zone
+        checkZone();
 
+    } else {
 
-        // Detect if user is walking
-        if (locationData.speed >= 0.5) {
+        inParliamentSquare = false;
+        console.log('You\'re not in Parliament Square.');
+        p.innerHTML = "Please make your way toParliament Square!";
 
-            walking = true;
-            s.innerHTML = "Walking!";
-
-            // If they weren't walking before, play walk audio and fade it in
-            if (currentStatus != walking) {
-                console.log('User is walking.')
-                playWalkAudio();
-                crossFade();
-            }
-
-
-        } else if (locationData.speed < 0.5) {
-
-            walking = false;
-            s.innerHTML = "Standing still."
-            
-            // If they are now standing still, play zone audio and fade it in
-            if (currentStatus != walking) {
-                console.log('User is standing still.')
-                playZoneAudio();
-                crossFade();
-            }
-            
-        }
-
-        // Log whether we ware walking or not
-        currentStatus = walking;
     }
 
+}
 
-    // Check what zone we are in
-    function checkZone() {
 
-        console.log('Zone is being checked.');
+// Check what zone we are in
+function checkZone() {
 
-        // For all of the zones in our array...
-        for (var i = 0; i < zoneData.length; i++) {
+    console.log('Zone is being checked.');
 
-            // If we are within the bounds of a zone...
-            if (locationData.latitude > zoneData[i].lat1 && 
-                locationData.latitude < zoneData[i].lat2 && 
-                locationData.longitude > zoneData[i].long1 && 
-                locationData.longitude < zoneData[i].long2) {
+    // For all of the zones in our array...
+    for (var i = 0; i < zoneData.length; i++) {
 
-                // ...and that zone is NOT the same as the last time we checked...
-                if (!currentZone || currentZone.name != zoneData[i].name) {
-                    
-                    // WE'RE IN A NEW ZONE!
-                    currentZone = zoneData[i];
-                    console.log('New zone: ' + currentZone.name);
-                    z.innerHTML = "New zone: " + currentZone.name;
-                    
-                    // So if we are standing still...
-                    if (locationData.speed < 0.5){
-                        
-                        // Play zone audio
-                        playZoneAudio();
-                    }
+        // If we are within the bounds of a zone...
+        if (locationData.latitude > zoneData[i].lat1 &&
+            locationData.latitude < zoneData[i].lat2 &&
+            locationData.longitude > zoneData[i].long1 &&
+            locationData.longitude < zoneData[i].long2) {
+
+            // ...and that zone is NOT the same as the last time we checked...
+            if (!currentZone || currentZone.name != zoneData[i].name) {
+
+                // WE'RE IN A NEW ZONE!
+                currentZone = zoneData[i];
+                console.log('New zone: ' + currentZone.name);
+                z.innerHTML = "New zone: " + currentZone.name;
+
+                // // So if we are standing still...
+                // if (locationData.speed < 0.5) {
+
+                //     // Play zone audio
+                //     playZoneAudio();
+                }
 
                 // ...and that zone IS the same as the last time we checked...
-                } else {
+            } else {
 
-                    // We're in the same zone...chill out.
-                    console.log('Same zone: ' + currentZone.name);
-                    z.innerHTML = "Same zone: " + currentZone.name;
-                    return false;
-                }
+                // We're in the same zone...chill out.
+                console.log('Same zone: ' + currentZone.name);
+                z.innerHTML = "Same zone: " + currentZone.name;
+                return false;
+            }
 
 
 
@@ -250,70 +212,110 @@ if (inParliamentSquare){
 
     }
 
-
-    // Selects and plays(?) zone audio file
-    function playZoneAudio() {
-
-        console.log('Zone ' + currentZone + ' audio is being played');
-        a.innerHTML = "Zone " + currentZone + "audio is being played."
-
-        // Select a random audio file to play from the zone's array of audio files
-        var nextAudio = currentZone.audio[Math.round(Math.random() * (currentZone.audio.length - 1))];
-        zoneAudioPlayer.src = './assets/' + nextAudio;
-    }
+    checkSpeed();
+}
 
 
-    // Selects and plays(?) walk audio file
-    function playWalkAudio() {
 
-        console.log('Walk audio is being played');
-        a.innerHTML = "Walk audio is being played."
-        
-        // Select a random audio file to play from the zone's array of audio files
-        var nextAudio = walkAudio[Math.round(Math.random() * (walkAudio.length - 1))];
-        walkAudioPlayer.src = './assets/' + nextAudio;
-    }
+function checkSpeed() {
 
 
-    // Crossfade smoothly between audio files
-    function crossFade() {
+    // Detect if user is walking
+    if (locationData.speed >= 0.5) {
 
-        var decreasing; // Audio player to fade down
-        var increasing; // Audio player to fade up
+        walking = true;
+        s.innerHTML = "Walking!";
 
-        // If walking, we want to fade up the walk audio
-        if (walking){
-
-            decreasing = zoneAudioPlayer;
-            increasing = walkAudioPlayer;
-
-        // If standing still, we want to fade up the zone audio
-        } else if (!walking){
-
-            decreasing = walkAudioPlayer;
-            increasing = zoneAudioPlayer;
+        // If they weren't walking before, play walk audio and fade it in
+        if (currentStatus != walking) {
+            console.log('User is walking.')
+            playWalkAudio();
+            crossFade();
         }
 
 
-        var steps = 10;
-        var step = 0;
+    } else if (locationData.speed < 0.5) {
 
-        var cross = setInterval(function() {
+        walking = false;
+        s.innerHTML = "Standing still."
 
+        // If they are now standing still, play zone audio and fade it in
+        if (currentStatus != walking) {
+            console.log('User is standing still.')
+            playZoneAudio();
+            crossFade();
+        }
 
-            decreasing.volume = 1 - step * 0.1;
-            increasing.volume = step * 0.1;
-
-            step++;
-
-            if (step == steps) {
-                clearInterval(cross);
-            }
-
-        }, 1000);
-
-        // Pause the faded-out audio and reset it to the beginning
-        decreasing.pause;
-        decreasing.currenTime = 0;
     }
+
+    // Log whether we ware walking or not
+    currentStatus = walking;
+}
+
+
+
+// Selects and plays(?) zone audio file
+function playZoneAudio() {
+
+    console.log('Zone ' + currentZone + ' audio is being played');
+    a.innerHTML = "Zone " + currentZone + "audio is being played."
+
+    // Select a random audio file to play from the zone's array of audio files
+    var nextAudio = currentZone.audio[Math.round(Math.random() * (currentZone.audio.length - 1))];
+    zoneAudioPlayer.src = './assets/' + nextAudio;
+}
+
+
+// Selects and plays(?) walk audio file
+function playWalkAudio() {
+
+    console.log('Walk audio is being played');
+    a.innerHTML = "Walk audio is being played."
+
+    // Select a random audio file to play from the zone's array of audio files
+    var nextAudio = walkAudio[Math.round(Math.random() * (walkAudio.length - 1))];
+    walkAudioPlayer.src = './assets/' + nextAudio;
+}
+
+
+// Crossfade smoothly between audio files
+function crossFade() {
+
+    var decreasing; // Audio player to fade down
+    var increasing; // Audio player to fade up
+
+    // If walking, we want to fade up the walk audio
+    if (walking) {
+
+        decreasing = zoneAudioPlayer;
+        increasing = walkAudioPlayer;
+
+        // If standing still, we want to fade up the zone audio
+    } else if (!walking) {
+
+        decreasing = walkAudioPlayer;
+        increasing = zoneAudioPlayer;
+    }
+
+
+    var steps = 10;
+    var step = 0;
+
+    var cross = setInterval(function() {
+
+
+        decreasing.volume = 1 - step * 0.1;
+        increasing.volume = step * 0.1;
+
+        step++;
+
+        if (step == steps) {
+            clearInterval(cross);
+        }
+
+    }, 1000);
+
+    // Pause the faded-out audio and reset it to the beginning
+    decreasing.pause;
+    decreasing.currenTime = 0;
 }
